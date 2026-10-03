@@ -39,7 +39,7 @@
                 />
 
                 @if (Route::has('password.request'))
-                    <flux:link class="absolute top-0 text-sm end-0" :href="route('password.request')" wire:navigate>
+                    <flux:link class="absolute top-0 text-sm end-0" :href="route('password.request')" wire:navigate.hover>
                         {{ __('Forgot your password?') }}
                     </flux:link>
                 @endif
@@ -60,7 +60,7 @@
             <flux:link
                 :href="$teamInvitation ? route('register', ['invitation' => $teamInvitation['code']]) : route('register')"
                 data-test="register-link"
-                wire:navigate
+                wire:navigate.hover
             >
                 {{ __('Sign up') }}
             </flux:link>

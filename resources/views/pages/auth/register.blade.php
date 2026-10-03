@@ -70,7 +70,7 @@
             <flux:link
                 :href="$teamInvitation ? route('login', ['invitation' => $teamInvitation['code']]) : route('login')"
                 data-test="team-invitation-login-link"
-                wire:navigate
+                wire:navigate.hover
             >
                 {{ __('Log in') }}
             </flux:link>

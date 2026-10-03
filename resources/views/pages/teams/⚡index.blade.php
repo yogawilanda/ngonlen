@@ -119,7 +119,7 @@ new #[Title('Teams')] class extends Component {
                                 size="sm"
                                 :icon="$team->role === 'member' ? 'eye' : 'pencil'"
                                 :href="route('teams.edit', $team->slug)"
-                                wire:navigate
+                                wire:navigate.hover
                                 :data-test="$team->role === 'member' ? 'team-view-button' : 'team-edit-button'"
                             />
                         </flux:tooltip>
