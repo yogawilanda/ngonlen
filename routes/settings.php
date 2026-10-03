@@ -10,7 +10,8 @@ Route::middleware(['auth'])->group(function () {
     Route::livewire('settings/profile', 'pages::settings.profile')->name('profile.edit');
 });
 
-Route::middleware(['auth', 'verified'])->group(function () {
+// kalau butuh verification tambahin 'verified' di middleware.
+Route::middleware(['auth', ])->group(function () {
     Route::livewire('settings/appearance', 'pages::settings.appearance')->name('appearance.edit');
 
     Route::livewire('settings/security', 'pages::settings.security')
