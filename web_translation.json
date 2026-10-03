@@ -1,0 +1,55 @@
+{
+    "name": "Acme Studio",
+    "domain": "acme.ngonlen.test",
+    "theme": {
+        "name": "Minimal Studio",
+        "colors": {
+            "primary": "sky",
+            "background": "white",
+            "surface": "zinc-50",
+            "text": "zinc-900",
+            "muted": "zinc-500"
+        },
+        "typography": {
+            "font": "sans",
+            "heading": "font-bold",
+            "body": "leading-relaxed"
+        },
+        "layout": {
+            "responsive": "true/false/default true",
+            "radius": "rounded-lg",
+            "section_spacing": "py-16 sm:py-20",
+            "container": "max-w-6xl"
+        }
+    },
+    "navigation": {
+        "items": [
+            {
+                "label": "Home",
+                "page": "home"
+            },
+            {
+                "label": "About",
+                "page": "about"
+            },
+            {
+                "label": "Contact",
+                "page": "contact"
+            }
+        ]
+    },
+    "pages": [
+        {
+            "id": "home",
+            "name": "Home",
+            "path": "/",
+            "sections": [
+                {
+                    "id": "hero",
+                    "settings": {},
+                    "widgets": []
+                }
+            ]
+        }
+    ]
+}
