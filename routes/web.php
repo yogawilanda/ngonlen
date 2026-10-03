@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureTeamMembership;
+use App\Livewire\Studio\Studio;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
@@ -10,8 +11,11 @@ Route::prefix('{current_team}')
     ->group(function () {
         Route::view('dashboard', 'dashboard')->name('dashboard');
 
-        Route::get('builder', \App\Livewire\Pages\Builder\Builder::class)
+        Route::get('studio', Studio::class)
+            ->name('studio');
+
+        Route::get('builder', Studio::class)
             ->name('builder');
     });
 
-require __DIR__ . '/settings.php';
+require __DIR__.'/settings.php';

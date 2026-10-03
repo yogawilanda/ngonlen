@@ -39,8 +39,8 @@
 
                 <flux:sidebar.item
                     icon="home"
-                    :href="route('builder')"
-                    :current="request()->routeIs('builder')"
+                    :href="route('studio')"
+                    :current="request()->routeIs('studio', 'builder')"
                     wire:navigate.hover
                 >
                     {{ __('Buat website') }}
