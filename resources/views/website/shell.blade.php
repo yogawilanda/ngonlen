@@ -1,27 +1,31 @@
 @php
-    $page = collect($website['pages'])->firstWhere('id', $pageId);
-    $theme = $website['theme'];
+    $page = collect($website['pages'] ?? [])->firstWhere('id', $pageId);
+    $theme = $website['theme'] ?? [];
 @endphp
 
-<div class="min-h-full bg-white text-zinc-900 {{ $theme['typography']['font'] === 'serif' ? 'font-serif' : 'font-sans' }}">
-    <header class="border-b border-zinc-200">
+@include('website.theme-styles', ['theme' => $theme])
+
+<div
+    class="website-theme min-h-full {{ ($theme['typography']['font'] ?? 'sans') === 'serif' ? 'font-serif' : 'font-sans' }}"
+>
+    <header class="theme-border border-b">
         <div class="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-6 px-5 sm:px-8">
             <a href="/" class="font-semibold tracking-tight">
-                {{ $website['name'] }}
+                {{ $website['name'] ?? 'Website' }}
             </a>
 
             <nav aria-label="Website navigation" class="flex flex-wrap items-center justify-end gap-4 text-sm">
-                @foreach ($website['navigation']['items'] ?? [] as $item)
+                @foreach ($website['pages'] ?? [] as $navigationPage)
                     @php
-                        $navigationPage = collect($website['pages'])->firstWhere('id', $item['page'] ?? null);
-                        $navigationPath = $navigationPage['path'] ?? '#';
+                        $navigationPath = $navigationPage['path'] ?? '/';
                     @endphp
 
-                    @if ($navigationPage && (str_starts_with($navigationPath, '/') && ! str_starts_with($navigationPath, '//') || str_starts_with($navigationPath, '#')))
-                        <a href="{{ $navigationPath }}" class="transition hover:text-sky-700">
-                            {{ $item['label'] ?? $navigationPage['name'] }}
-                        </a>
-                    @endif
+                    <a
+                        href="{{ $navigationPath }}"
+                        class="theme-link transition"
+                    >
+                        {{ $navigationPage['name'] ?? 'Page' }}
+                    </a>
                 @endforeach
             </nav>
         </div>
@@ -33,7 +37,7 @@
             'theme' => $theme,
         ])
     @else
-        <main class="mx-auto max-w-7xl px-5 py-16 text-sm text-zinc-600 sm:px-8">
+        <main class="mx-auto max-w-7xl px-5 py-16 text-sm theme-muted sm:px-8">
             The selected page is not part of this website model.
         </main>
     @endif

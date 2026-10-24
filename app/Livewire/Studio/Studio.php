@@ -2,14 +2,17 @@
 
 namespace App\Livewire\Studio;
 
+use App\Services\WebsiteExporter;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Str;
 use Livewire\Component;
+use App\Models\Team;
+use App\Models\Website as WebsiteRecord;
+use Illuminate\Support\Facades\DB;
 
 class Studio extends Component
 {
     public array $website = [];
-
     public string $activePage = '';
 
     public ?string $activeSection = null;
@@ -19,7 +22,8 @@ class Studio extends Component
     public string $activePanel = 'pages';
 
     public string $activeTheme = '';
-
+    public ?int $websiteId = null;
+    public int $teamId;
     /**
      * @var array<string, array{colors: array<string, string>, typography: array<string, string>}>
      */
@@ -68,12 +72,66 @@ class Studio extends Component
         ],
     ];
 
+    public function updateThemeColor(string $key, string $value): void
+    {
+        $allowedColors = [
+            'primary',
+            'background',
+            'surface',
+            'text',
+            'muted',
+        ];
+
+        if (!in_array($key, $allowedColors, true)) {
+            return;
+        }
+
+        if (!preg_match('/^#[0-9a-fA-F]{6}$/', $value)) {
+            return;
+        }
+
+        $this->website['theme']['colors'][$key] = $value;
+        $this->website['theme']['name'] = 'Custom';
+        $this->activeTheme = 'Custom';
+    }
+
+    public function updateThemeFont(string $font): void
+    {
+        if (!in_array($font, ['sans', 'serif'], true)) {
+            return;
+        }
+
+        $this->website['theme']['typography']['font'] = $font;
+        $this->website['theme']['name'] = 'Custom';
+        $this->activeTheme = 'Custom';
+    }
+
     public function mount(): void
     {
-        $this->website = $this->defaultWebsite();
-        $this->activePage = $this->website['pages'][0]['id'];
+        $teamSlug = request()->route('current_team');
+
+        $team = Team::query()
+            ->where('slug', $teamSlug)
+            ->firstOrFail();
+
+        $this->teamId = $team->id;
+
+        $record = WebsiteRecord::query()
+            ->where('team_id', $team->id)
+            ->oldest('id')
+            ->first();
+
+        if ($record) {
+            $this->websiteId = $record->id;
+            $this->website = $record->model;
+        } else {
+            $this->website = $this->defaultWebsite();
+            $this->website['id'] = (string) Str::uuid();
+        }
+
+        $this->activePage = $this->website['pages'][0]['id'] ?? '';
         $this->activeSection = $this->website['pages'][0]['sections'][0]['id'] ?? null;
-        $this->activeTheme = $this->website['theme']['name'];
+        $this->activeTheme = $this->website['theme']['name'] ?? 'Minimal Studio';
     }
 
     public function openPanel(string $panel): void
@@ -582,6 +640,81 @@ class Studio extends Component
         ];
     }
 
+    public function saveWebsite(): void
+    {
+        $this->validate([
+            'website.name' => ['required', 'string', 'max:120'],
+            'website.pages' => ['required', 'array', 'min:1'],
+        ]);
+
+        $slug = Str::slug($this->website['name']) ?: 'website';
+
+        DB::transaction(function () use ($slug): void {
+            $team = Team::query()->findOrFail($this->teamId);
+
+            $record = $this->websiteId
+                ? WebsiteRecord::query()
+                    ->where('team_id', $team->id)
+                    ->findOrFail($this->websiteId)
+                : new WebsiteRecord(['team_id' => $team->id]);
+
+            $record->name = $this->website['name'];
+            $record->slug = $slug;
+            $record->model = $this->website;
+            $record->save();
+
+            $this->websiteId = $record->id;
+        });
+
+        $this->toast('Website berhasil disimpan.');
+    }
+
+
+    public function saveTheme(): void
+    {
+         $team = Team::query()->findOrFail($this->teamId);
+
+        $this->validate([
+            'website.name' => ['required', 'string', 'max:120'],
+            'website.pages' => ['required', 'array', 'min:1'],
+            'website.theme' => ['required', 'array'],
+        ]);
+
+        DB::transaction(function () use ($team): void {
+            if ($this->websiteId !== null) {
+                $record = WebsiteRecord::query()
+                    ->where('team_id', $team->id)
+                    ->findOrFail($this->websiteId);
+
+                // Simpan tema saja; jangan timpa halaman/widget yang tersimpan.
+                $model = $record->model ?? [];
+                $model['theme'] = $this->website['theme'];
+                $record->model = $model;
+                $record->save();
+
+                return;
+            }
+
+            // Belum ada record: inisialisasi website dengan model saat ini.
+            $slug = Str::slug($this->website['name']) ?: 'website';
+
+            $record = new WebsiteRecord();
+            $record->team_id = $team->id;
+            $record->name = $this->website['name'];
+            $record->slug = $slug;
+            $record->model = $this->website;
+            $record->save();
+
+            $this->websiteId = $record->id;
+        });
+
+        $this->toast('Tema berhasil disimpan.');
+    }
+    public function exportWebsite()
+    {
+        return app(WebsiteExporter::class)->export($this->website);
+    }
+
     /**
      * @return array{id: string, type: string, content: array<string, mixed>, settings: array<string, mixed>}|null
      */
@@ -732,3 +865,4 @@ class Studio extends Component
             ]);
     }
 }
+

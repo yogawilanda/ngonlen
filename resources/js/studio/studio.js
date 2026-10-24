@@ -1,6 +1,6 @@
-// resources/js/studio/studio.js
+﻿// resources/js/studio/studio.js
 
-import Alpine from 'alpinejs'
+import { Livewire, Alpine } from '../../../vendor/livewire/livewire/dist/livewire.esm'
 
 window.Alpine = Alpine
 
@@ -39,4 +39,5 @@ Alpine.data('studio', (initialState = {}) => ({
     },
 }))
 
-Alpine.start()
+Livewire.start()
+

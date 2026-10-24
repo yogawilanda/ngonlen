@@ -359,28 +359,98 @@
 
 
     {{-- Theme --}}
+    {{-- Theme --}}
     <div x-show="activePanel === 'theme'">
-        <div class="space-y-3 p-4">
-            <h2 class="text-sm font-semibold">
-                Theme
-            </h2>
+        <div class="space-y-5 p-4">
+            <div>
+                <h2 class="text-sm font-semibold">Theme</h2>
+                <p class="mt-1 text-xs text-zinc-500">
+                    Customize your website's visual identity.
+                </p>
+            </div>
 
-            <p class="text-xs text-zinc-500">
-                Theme selection updates the Website Model.
-            </p>
+            <div class="space-y-2">
+                <h3 class="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                    Presets
+                </h3>
 
-            <ul class="space-y-1">
-                @foreach ($availableThemes as $theme)
-                <li wire:key="theme-{{ \Illuminate\Support\Str::slug($theme) }}">
-                    <button type="button" wire:click="selectTheme('{{ $theme }}')"
-                        class="w-full rounded-lg px-3 py-2 text-left text-sm" :class="$wire.website.theme.name === @js($theme)
-                                ? 'bg-sky-50 font-medium text-sky-800 dark:bg-sky-950 dark:text-sky-200'
-                                : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'">
-                        {{ $theme }}
-                    </button>
-                </li>
+                @foreach ($availableThemes as $themeName)
+                <button type="button" wire:click="selectTheme(@js($themeName))"
+                    wire:key="theme-{{ \Illuminate\Support\Str::slug($themeName) }}"
+                    @class([ 'w-full rounded-lg border px-3 py-2 text-left text-sm transition'
+                    , 'border-sky-300 bg-sky-50 font-medium text-sky-900'=> $activeTheme === $themeName,
+                    'border-zinc-200 hover:bg-zinc-50' => $activeTheme !== $themeName,
+                    ])
+                    >
+                    {{ $themeName }}
+                </button>
                 @endforeach
-            </ul>
+            </div>
+
+            <div class="space-y-3 border-t border-zinc-200 pt-4">
+                <h3 class="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                    Colors
+                </h3>
+
+                @foreach ([
+                'primary' => 'Primary',
+                'background' => 'Background',
+                'surface' => 'Surface',
+                'text' => 'Text',
+                'muted' => 'Muted text',
+                ] as $key => $label)
+                @php
+                $current = $website['theme']['colors'][$key] ?? '#ffffff';
+
+                $palette = [
+                'sky' => '#0284c7',
+                'emerald' => '#059669',
+                'violet' => '#7c3aed',
+                'white' => '#ffffff',
+                'zinc-50' => '#fafafa',
+                'zinc-500' => '#71717a',
+                'zinc-900' => '#18181b',
+                ];
+
+                $hex = preg_match('/^#[0-9a-fA-F]{6}$/', $current)
+                ? $current
+                : ($palette[$current] ?? '#ffffff');
+                @endphp
+
+                <label class="flex items-center justify-between gap-3 text-sm">
+                    <span>{{ $label }}</span>
+
+                    <input type="color" value="{{ $hex }}"
+                        x-on:change="$wire.updateThemeColor('{{ $key }}', $event.target.value)"
+                        class="h-9 w-12 cursor-pointer rounded border border-zinc-200 bg-white p-1"
+                        aria-label="{{ $label }}">
+                </label>
+                @endforeach
+            </div>
+
+            <div class="space-y-2 border-t border-zinc-200 pt-4">
+                <label for="theme-font" class="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                    Font family
+                </label>
+
+                <select id="theme-font" x-on:change="$wire.updateThemeFont($event.target.value)"
+                    class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm">
+                    <option value="sans" @selected(($website['theme']['typography']['font'] ?? 'sans' )==='sans' )>
+                        Sans serif
+                    </option>
+
+                    <option value="serif" @selected(($website['theme']['typography']['font'] ?? 'sans' )==='serif' )>
+                        Serif
+                    </option>
+                </select>
+            </div>
+
+            <button type="button" wire:click="saveTheme" wire:loading.attr="disabled"
+                wire:target="saveTheme"
+                class="w-full rounded-lg bg-zinc-900 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50">
+                <span wire:loading.remove wire:target="saveTheme">Save theme</span>
+                <span wire:loading wire:target="saveTheme">Saving…</span>
+            </button>
         </div>
     </div>
 

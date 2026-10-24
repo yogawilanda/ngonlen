@@ -35,5 +35,17 @@
             class="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">
             {{ $website['theme']['name'] }}
         </span>
+
+        <button type="button" wire:click="saveWebsite" wire:loading.attr="disabled" wire:target="saveWebsite"
+            class="rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-700 disabled:opacity-50">
+            <span wire:loading.remove wire:target="saveWebsite">Simpan website</span>
+            <span wire:loading wire:target="saveWebsite">Menyimpan...</span>
+        </button>
+
+        <button type="button" wire:click="exportWebsite" wire:loading.attr="disabled" wire:target="exportWebsite"
+            class="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-semibold transition hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800">
+            <span wire:loading.remove wire:target="exportWebsite">Export Laravel ZIP</span>
+            <span wire:loading wire:target="exportWebsite">Menyiapkan ZIP...</span>
+        </button>
     </div>
 </header>

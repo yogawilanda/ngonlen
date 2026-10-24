@@ -1,4 +1,4 @@
-{{-- resources/views/layouts/studio.blade.php --}}
+﻿{{-- resources/views/layouts/studio.blade.php --}}
 
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
@@ -11,6 +11,8 @@
 <body class="min-h-screen overflow-hidden bg-zinc-100 dark:bg-zinc-950">
     {{ $slot }}
 
+    @livewireScriptConfig
     @fluxScripts
 </body>
 </html>
+
